@@ -1,1286 +1,170 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WMN2 | Advanced IP to Domain Converter</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Batch IP → Domain Resolver</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --primary-gradient: linear-gradient(135deg, #6366f1, #8b5cf6, #d946ef);
-      --secondary-gradient: linear-gradient(135deg, #10b981, #059669);
-      --warning-gradient: linear-gradient(135deg, #f59e0b, #d97706);
-      --error-gradient: linear-gradient(135deg, #ef4444, #dc2626);
-      --bg-gradient: linear-gradient(135deg, #0f172a, #1e293b);
-      --card-bg: rgba(30, 41, 59, 0.9);
-      --text-primary: #f1f5f9;
-      --text-secondary: #94a3b8;
-      --border-color: rgba(255, 255, 255, 0.15);
-      --success: #10b981;
-      --warning: #f59e0b;
-      --error: #ef4444;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--bg-gradient);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      color: var(--text-primary);
-    }
-
-    .container {
-      max-width: 1200px;
-      width: 100%;
-      animation: fadeIn 0.6s ease-out;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .header {
-      text-align: center;
-      margin-bottom: 40px;
-      position: relative;
-    }
-
-    .header h1 {
-      font-size: 3.2rem;
-      font-weight: 800;
-      background: var(--primary-gradient);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      margin-bottom: 8px;
-      letter-spacing: -0.5px;
-    }
-
-    .header h2 {
-      font-weight: 400;
-      color: var(--text-secondary);
-      font-size: 1.4rem;
-      margin-bottom: 20px;
-    }
-
-    .tagline {
-      display: inline-block;
-      padding: 10px 22px;
-      background: rgba(99, 102, 241, 0.1);
-      border: 1px solid rgba(99, 102, 241, 0.3);
-      border-radius: 50px;
-      font-size: 0.95rem;
-      color: #818cf8;
-      backdrop-filter: blur(10px);
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.02); }
-    }
-
-    .card {
-      background: var(--card-bg);
-      border-radius: 24px;
-      padding: 40px;
-      box-shadow: 
-        0 25px 50px -12px rgba(0, 0, 0, 0.5),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border: 1px solid var(--border-color);
-      animation: slideUp 0.8s ease-out 0.2s both;
-    }
-
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(40px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .input-container {
-      position: relative;
-      margin-bottom: 20px;
-    }
-
-    textarea {
-      width: 100%;
-      height: 200px;
-      padding: 24px;
-      border-radius: 16px;
-      border: 2px solid var(--border-color);
-      font-family: 'JetBrains Mono', 'Courier New', monospace;
-      font-size: 15px;
-      background: rgba(15, 23, 42, 0.7);
-      color: var(--text-primary);
-      resize: vertical;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      line-height: 1.6;
-    }
-
-    textarea:focus {
-      outline: none;
-      border-color: #6366f1;
-      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
-      transform: translateY(-2px);
-    }
-
-    textarea::placeholder {
-      color: #64748b;
-    }
-
-    .info {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 12px;
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-    }
-
-    .counter {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .counter i {
-      color: #6366f1;
-    }
-
-    .buttons {
-      display: flex;
-      gap: 16px;
-      margin: 30px 0;
-    }
-
-    .btn {
-      flex: 1;
-      padding: 18px 24px;
-      border: none;
-      border-radius: 14px;
-      font-weight: 600;
-      font-size: 16px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .btn::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(255, 255, 255, 0.1);
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-
-    .btn:hover::after {
-      opacity: 1;
-    }
-
-    .btn-primary {
-      background: var(--primary-gradient);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
-    }
-
-    .btn-copy {
-      background: var(--secondary-gradient);
-      color: white;
-    }
-
-    .btn-copy:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4);
-    }
-
-    .btn-debug {
-      background: var(--warning-gradient);
-      color: white;
-    }
-
-    .btn-debug:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.4);
-    }
-
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none !important;
-      box-shadow: none !important;
-    }
-
-    .progress-container {
-      height: 6px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 3px;
-      margin: 20px 0;
-      overflow: hidden;
-      display: none;
-    }
-
-    .progress-bar {
-      height: 100%;
-      background: var(--primary-gradient);
-      width: 0%;
-      transition: width 0.3s ease;
-      border-radius: 3px;
-    }
-
-    .loading {
-      text-align: center;
-      padding: 30px;
-      display: none;
-    }
-
-    .spinner {
-      width: 60px;
-      height: 60px;
-      border: 4px solid rgba(255, 255, 255, 0.1);
-      border-top: 4px solid #6366f1;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 20px;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .results {
-      margin-top: 40px;
-      padding-top: 30px;
-      border-top: 1px solid var(--border-color);
-      animation: fadeIn 0.6s ease-out;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 24px;
-      margin-bottom: 30px;
-    }
-
-    .stat-card {
-      background: rgba(15, 23, 42, 0.6);
-      border-radius: 16px;
-      padding: 24px;
-      border: 1px solid var(--border-color);
-      transition: transform 0.3s ease;
-    }
-
-    .stat-card:hover {
-      transform: translateY(-5px);
-    }
-
-    .stat-number {
-      font-size: 2.8rem;
-      font-weight: 800;
-      background: var(--primary-gradient);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      line-height: 1;
-      margin-bottom: 8px;
-    }
-
-    .stat-label {
-      color: var(--text-secondary);
-      font-size: 0.95rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .results-container {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 24px;
-      margin-bottom: 30px;
-    }
-
-    @media (max-width: 1024px) {
-      .results-container {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .domains-section, .status-section {
-      background: rgba(15, 23, 42, 0.4);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 24px;
-    }
-
-    .section-title {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 20px;
-      color: var(--text-primary);
-      font-size: 1.2rem;
-      font-weight: 600;
-    }
-
-    .domains-list {
-      max-height: 400px;
-      overflow-y: auto;
-      padding-right: 10px;
-    }
-
-    .domains-list::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    .domains-list::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 4px;
-    }
-
-    .domains-list::-webkit-scrollbar-thumb {
-      background: #6366f1;
-      border-radius: 4px;
-    }
-
-    .domain-item {
-      background: rgba(30, 41, 59, 0.8);
-      border-radius: 12px;
-      padding: 16px 20px;
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-left: 4px solid var(--success);
-      animation: slideIn 0.4s ease-out;
-      transition: all 0.3s ease;
-    }
-
-    .domain-item.no-dns {
-      border-left-color: var(--error);
-      opacity: 0.7;
-    }
-
-    .domain-item.same-domain {
-      border-left-color: var(--warning);
-    }
-
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(-20px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-
-    .domain-item:hover {
-      transform: translateX(5px);
-      background: rgba(30, 41, 59, 0.9);
-    }
-
-    .domain-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex: 1;
-      min-width: 0;
-    }
-
-    .ip-badge {
-      background: rgba(99, 102, 241, 0.2);
-      color: #818cf8;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 500;
-      white-space: nowrap;
-    }
-
-    .domain-text {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 15px;
-      color: var(--text-primary);
-      word-break: break-all;
-      flex: 1;
-    }
-
-    .domain-status {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      white-space: nowrap;
-    }
-
-    .status-success {
-      color: var(--success);
-    }
-
-    .status-warning {
-      color: var(--warning);
-    }
-
-    .status-error {
-      color: var(--error);
-    }
-
-    .status-list {
-      list-style: none;
-    }
-
-    .status-item {
-      padding: 12px 16px;
-      margin-bottom: 10px;
-      background: rgba(30, 41, 59, 0.8);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      animation: fadeIn 0.5s ease-out;
-    }
-
-    .status-item i {
-      font-size: 1.2rem;
-    }
-
-    .status-success i {
-      color: var(--success);
-    }
-
-    .status-warning i {
-      color: var(--warning);
-    }
-
-    .status-error i {
-      color: var(--error);
-    }
-
-    .status-details {
-      flex: 1;
-    }
-
-    .status-ip {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--text-secondary);
-    }
-
-    .empty-state i {
-      font-size: 48px;
-      margin-bottom: 20px;
-      opacity: 0.5;
-    }
-
-    .toast {
-      position: fixed;
-      bottom: 40px;
-      right: 40px;
-      background: var(--secondary-gradient);
-      color: white;
-      padding: 18px 28px;
-      border-radius: 14px;
-      font-weight: 500;
-      opacity: 0;
-      transform: translateY(100px);
-      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
-      z-index: 1000;
-      max-width: 400px;
-    }
-
-    .toast.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .toast.warning {
-      background: var(--warning-gradient);
-      box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
-    }
-
-    .toast.error {
-      background: var(--error-gradient);
-      box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3);
-    }
-
-    .summary {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 20px;
-      padding: 20px;
-      background: rgba(15, 23, 42, 0.6);
-      border-radius: 16px;
-      border: 1px solid var(--border-color);
-    }
-
-    .summary-item {
-      text-align: center;
-      flex: 1;
-    }
-
-    .summary-number {
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: 5px;
-    }
-
-    .summary-success .summary-number {
-      color: var(--success);
-    }
-
-    .summary-warning .summary-number {
-      color: var(--warning);
-    }
-
-    .summary-error .summary-number {
-      color: var(--error);
-    }
-
-    .summary-label {
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-    }
-
-    @media (max-width: 768px) {
-      .container { padding: 10px; }
-      .card { padding: 24px; }
-      .header h1 { font-size: 2.2rem; }
-      .buttons { flex-direction: column; }
-      .btn { width: 100%; }
-      .stats-grid { grid-template-columns: 1fr; }
-      .toast { bottom: 20px; right: 20px; left: 20px; }
-      .summary { flex-direction: column; gap: 15px; }
-      .summary-item { width: 100%; }
-    }
+    :root{
+      --primary:#4361ee;--primary-dark:#3a56d4;--secondary:#7209b7;
+      --success:#2ecc71;--danger:#e74c3c;--warning:#f39c12;
+      --light:#f8f9fa;--dark:#212529;--gray:#6c757d;--border:#e9ecef;
+      --radius:12px;--shadow:0 6px 24px rgba(0,0,0,.08);--t:all .25s ease;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      background:linear-gradient(135deg,#f5f7fa,#e4edf5);padding:24px;color:var(--dark)}
+    .card{max-width:1000px;margin:auto;background:#fff;border-radius:var(--radius);
+      box-shadow:var(--shadow);padding:28px;position:relative}
+    .card::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;
+      background:linear-gradient(90deg,var(--primary),var(--secondary))}
+    h1{margin:0 0 8px;font-size:28px;font-weight:800;
+      background:linear-gradient(90deg,var(--primary),var(--secondary));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .lead{color:var(--gray);margin-bottom:18px}
+    textarea{width:100%;min-height:160px;border:2px solid var(--border);
+      border-radius:var(--radius);padding:16px;font-family:monospace;
+      transition:var(--t);background:#fafbfc}
+    textarea:focus{outline:none;border-color:var(--primary);
+      box-shadow:0 0 0 3px rgba(67,97,238,.15)}
+    .controls{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0}
+    .controls>*{flex:1 1 180px}
+    button,select{border-radius:var(--radius);padding:12px 16px;font-weight:600;
+      border:2px solid var(--border);background:#fff;cursor:pointer;transition:var(--t)}
+    button.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+    button.primary:hover{background:var(--primary-dark)}
+    button.ghost:hover{background:var(--border)}
+    .results{border:2px solid var(--border);border-radius:var(--radius);overflow:auto;max-height:420px}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:14px;border-bottom:1px solid var(--border);font-size:14px}
+    th{background:var(--primary);color:#fff;position:sticky;top:0}
+    .status.ok{color:var(--success)}
+    .status.err{color:var(--danger)}
+    .pill{display:inline-block;margin:4px 6px 4px 0;padding:6px 12px;border-radius:20px;
+      background:#eef2ff;color:var(--primary);border:1px solid #dbe4ff}
+    .stats{display:flex;gap:16px;margin-top:16px;background:#f8f9fa;
+      padding:14px;border-radius:var(--radius)}
+    .stat{text-align:center}
+    .stat b{display:block;font-size:20px;color:var(--primary)}
+    .alerts{position:fixed;top:20px;right:20px;display:flex;flex-direction:column;gap:10px}
+    .alert{background:#fff;border-left:4px solid var(--primary);padding:12px 16px;
+      border-radius:var(--radius);box-shadow:var(--shadow)}
+    @media(max-width:768px){body{padding:16px}.controls{flex-direction:column}}
   </style>
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <h1>WMN2 - Advanced DNS Lookup</h1>
-    <h2>Multi-Source IP to Domain Converter</h2>
-    <div class="tagline">
-      <i class="fas fa-bolt"></i> 3x Faster • Multiple APIs • Detailed Results
-    </div>
-  </div>
-
   <div class="card">
-    <div class="input-container">
-      <textarea 
-        id="ipInput" 
-        placeholder="Paste IP addresses (one per line or space-separated)
-Example:
-8.8.8.8
+    <h1><i class="fas fa-exchange-alt"></i> Batch IP → Domain Resolver</h1>
+    <p class="lead">Paste IPv4 or IPv6 addresses (one per line). The app performs reverse DNS (PTR) lookup.</p>
+
+    <textarea id="input" placeholder="8.8.8.8
 1.1.1.1
-192.168.1.1
+2606:4700:4700::1111"></textarea>
 
-Or paste from your example:
-50.2.108.202
-170.130.71.10
-170.130.71.11
-170.130.71.12
-170.130.71.13
-170.130.71.14"
-        spellcheck="false"
-      ></textarea>
-    </div>
-    
-    <div class="info">
-      <div class="counter">
-        <i class="fas fa-server"></i>
-        <span id="ipCount">0 IPs</span>
-      </div>
-      <div class="counter">
-        <i class="fas fa-font"></i>
-        <span id="charCount">0 characters</span>
-      </div>
-      <div class="counter">
-        <i class="fas fa-clock"></i>
-        <span id="timeEstimate">~0s</span>
-      </div>
+    <div class="controls">
+      <select id="provider">
+        <option value="google">Google DNS</option>
+        <option value="cloudflare">Cloudflare DNS</option>
+      </select>
+      <button class="primary" id="resolveBtn"><i class="fas fa-search"></i> Resolve Domains</button>
+      <button class="ghost" id="clearBtn"><i class="fas fa-trash"></i> Clear</button>
+      <button class="ghost" id="copyDomains"><i class="fas fa-copy"></i> Copy Domains</button>
     </div>
 
-    <div class="progress-container" id="progressContainer">
-      <div class="progress-bar" id="progressBar"></div>
+    <div class="stats">
+      <div class="stat"><b id="total">0</b>IPs</div>
+      <div class="stat"><b id="resolved">0</b>Resolved</div>
+      <div class="stat"><b id="errors">0</b>Errors</div>
     </div>
 
-    <div class="buttons">
-      <button class="btn btn-primary" onclick="lookupIPs()" id="lookupBtn">
-        <i class="fas fa-search"></i>
-        <span>Lookup Domains (3 APIs)</span>
-      </button>
-      <button class="btn btn-copy" id="copyBtn" onclick="copyDomainsOnly()" disabled>
-        <i class="fas fa-copy"></i>
-        <span>Copy Domains</span>
-      </button>
-      <button class="btn btn-debug" onclick="debugLookup()" id="debugBtn">
-        <i class="fas fa-bug"></i>
-        <span>Debug Mode</span>
-      </button>
-    </div>
-
-    <div class="loading" id="loading">
-      <div class="spinner"></div>
-      <p id="statusText">Initializing lookup engines...</p>
-      <p class="status-details" id="statusDetails"></p>
-    </div>
-
-    <div class="results" id="resultsSection" style="display: none;">
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-number" id="domainCount">0</div>
-          <div class="stat-label">
-            <i class="fas fa-globe"></i>
-            <span>Domains Found</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number" id="ipProcessed">0</div>
-          <div class="stat-label">
-            <i class="fas fa-check-circle"></i>
-            <span>IPs Processed</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number" id="uniqueCount">0</div>
-          <div class="stat-label">
-            <i class="fas fa-filter"></i>
-            <span>Unique Domains</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number" id="failedCount">0</div>
-          <div class="stat-label">
-            <i class="fas fa-times-circle"></i>
-            <span>Failed Lookups</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="results-container">
-        <div class="domains-section">
-          <div class="section-title">
-            <i class="fas fa-list"></i>
-            <span>Discovered Domains</span>
-          </div>
-          <div class="domains-list" id="domainsList">
-            <div class="empty-state" id="empty">
-              <i class="fas fa-search"></i>
-              <h3>No results yet</h3>
-              <p>Enter IP addresses and click "Lookup Domains"</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="status-section">
-          <div class="section-title">
-            <i class="fas fa-info-circle"></i>
-            <span>Lookup Status</span>
-          </div>
-          <ul class="status-list" id="statusList"></ul>
-        </div>
-      </div>
-
-      <div class="summary" id="summarySection" style="display: none;">
-        <div class="summary-item summary-success">
-          <div class="summary-number" id="summarySuccess">0</div>
-          <div class="summary-label">Success</div>
-        </div>
-        <div class="summary-item summary-warning">
-          <div class="summary-number" id="summaryNoDNS">0</div>
-          <div class="summary-label">No DNS</div>
-        </div>
-        <div class="summary-item summary-error">
-          <div class="summary-number" id="summaryFailed">0</div>
-          <div class="summary-label">Failed</div>
-        </div>
-      </div>
+    <div class="results" style="margin-top:16px">
+      <table>
+        <thead>
+          <tr><th style="width:30%">IP</th><th style="width:50%">Domain(s)</th><th>Status</th></tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
     </div>
   </div>
-</div>
 
-<div class="toast" id="toast">Copied to clipboard!</div>
+  <div class="alerts" id="alerts"></div>
 
 <script>
-const ipInput = document.getElementById('ipInput');
-const ipCount = document.getElementById('ipCount');
-const charCount = document.getElementById('charCount');
-const timeEstimate = document.getElementById('timeEstimate');
-const domainsList = document.getElementById('domainsList');
-const domainCount = document.getElementById('domainCount');
-const ipProcessed = document.getElementById('ipProcessed');
-const uniqueCount = document.getElementById('uniqueCount');
-const failedCount = document.getElementById('failedCount');
-const loading = document.getElementById('loading');
-const empty = document.getElementById('empty');
-const copyBtn = document.getElementById('copyBtn');
-const toast = document.getElementById('toast');
-const lookupBtn = document.getElementById('lookupBtn');
-const debugBtn = document.getElementById('debugBtn');
-const resultsSection = document.getElementById('resultsSection');
-const progressContainer = document.getElementById('progressContainer');
-const progressBar = document.getElementById('progressBar');
-const statusText = document.getElementById('statusText');
-const statusDetails = document.getElementById('statusDetails');
-const statusList = document.getElementById('statusList');
-const summarySection = document.getElementById('summarySection');
-const summarySuccess = document.getElementById('summarySuccess');
-const summaryNoDNS = document.getElementById('summaryNoDNS');
-const summaryFailed = document.getElementById('summaryFailed');
+const input=document.getElementById('input');
+const tbody=document.getElementById('tbody');
+const provider=document.getElementById('provider');
+const totalEl=document.getElementById('total');
+const resolvedEl=document.getElementById('resolved');
+const errorsEl=document.getElementById('errors');
+const alerts=document.getElementById('alerts');
+let stats={total:0,resolved:0,errors:0};
 
-// Update counters in real-time
-ipInput.addEventListener('input', () => {
-  const text = ipInput.value.trim();
-  const ips = extractIPs(text);
-  
-  ipCount.textContent = `${ips.length} IP${ips.length !== 1 ? 's' : ''}`;
-  charCount.textContent = `${text.length} character${text.length !== 1 ? 's' : ''}`;
-  
-  // Estimate processing time
-  const estimatedTime = Math.max(1, Math.ceil(ips.length * 0.5));
-  timeEstimate.textContent = `~${estimatedTime}s`;
-  
-  // Visual feedback
-  ipInput.style.background = text.length > 0 
-    ? 'rgba(99, 102, 241, 0.05)' 
-    : 'rgba(15, 23, 42, 0.7)';
-});
+function alertMsg(msg){const d=document.createElement('div');d.className='alert';d.textContent=msg;alerts.appendChild(d);setTimeout(()=>d.remove(),3500)}
 
-function extractIPs(text) {
-  const ipRegex = /\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b/g;
-  const matches = text.match(ipRegex) || [];
-  return [...new Set(matches)]; // Remove duplicates
+function reset(){stats={total:0,resolved:0,errors:0};updateStats()}
+function updateStats(){totalEl.textContent=stats.total;resolvedEl.textContent=stats.resolved;errorsEl.textContent=stats.errors}
+
+function parseIPs(raw){return [...new Set(raw.split(/\r?\n/).map(l=>l.trim()).filter(Boolean))]}
+
+function ptrName(ip){
+  if(ip.includes(':')){
+    return ip.replace(/:/g,'').split('').reverse().join('.')+'.ip6.arpa';
+  }
+  return ip.split('.').reverse().join('.')+'.in-addr.arpa';
 }
 
-// Enhanced toast notification
-function showToast(message, type = 'success') {
-  toast.textContent = message;
-  toast.className = 'toast';
-  toast.classList.add(type, 'show');
-  
-  setTimeout(() => {
-    toast.classList.remove('show');
-    setTimeout(() => toast.className = 'toast', 400);
-  }, 3000);
+async function dohPTR(ip){
+  const name=ptrName(ip);
+  let url=provider.value==='cloudflare'
+    ? `https://cloudflare-dns.com/dns-query?name=${name}&type=PTR`
+    : `https://dns.google/resolve?name=${name}&type=PTR`;
+  const r=await fetch(url,{headers: provider.value==='cloudflare'?{'Accept':'application/dns-json'}:{}});
+  if(!r.ok) throw new Error('dns');
+  const j=await r.json();
+  const ans=j.Answer||[];
+  return ans.map(a=>a.data.replace(/\.$/,''));
 }
 
-// Invert IP for PTR lookup
-function invertIP(ip) {
-  return ip.split('.').reverse().join('.');
+function addRow(ip){
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td>${ip}</td><td>…</td><td class="status">resolving</td>`;
+  tbody.appendChild(tr);return tr;
 }
 
-// Multiple API lookup with fallbacks
-async function lookupSingleIP(ip) {
-  const endpoints = [
-    {
-      name: 'HackerTarget',
-      url: `https://api.hackertarget.com/reversedns/?q=${ip}`,
-      parser: parseHackerTarget
-    },
-    {
-      name: 'Google DNS',
-      url: `https://dns.google/resolve?name=${invertIP(ip)}.in-addr.arpa&type=PTR`,
-      parser: parseGoogleDNS
-    },
-    {
-      name: 'ViewDNS',
-      url: `https://api.viewdns.info/reversedns/?ip=${ip}&output=json&apikey=demo`,
-      parser: parseViewDNS
-    }
-  ];
-
-  const results = [];
-  
-  for (const endpoint of endpoints) {
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2000);
-      
-      const response = await fetch(endpoint.url, {
-        signal: controller.signal,
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
-      });
-      
-      clearTimeout(timeoutId);
-      
-      if (response.ok) {
-        const text = await response.text();
-        const domain = endpoint.parser(text);
-        
-        if (domain && domain !== 'error') {
-          results.push({
-            ip,
-            domain,
-            source: endpoint.name,
-            timestamp: new Date().toISOString()
-          });
-          
-          // Return first successful result
-          return results[0];
-        }
-      }
-    } catch (error) {
-      // Continue to next endpoint
-      continue;
-    }
+async function resolveIP(ip,tr){
+  try{
+    const domains=await dohPTR(ip);
+    if(domains.length===0) throw new Error('no ptr');
+    tr.children[1].innerHTML=domains.map(d=>`<span class="pill">${d}</span>`).join('');
+    tr.children[2].innerHTML='<span class="status ok"><i class="fas fa-check"></i> ok</span>';
+    stats.resolved++;
+  }catch(e){
+    tr.children[1].textContent='—';
+    tr.children[2].innerHTML='<span class="status err"><i class="fas fa-times"></i> failed</span>';
+    stats.errors++;
   }
-  
-  return null;
+  updateStats();
 }
 
-// Parser functions for different APIs
-function parseHackerTarget(text) {
-  if (text.includes('error') || text.includes('No DNS') || text.includes('API count exceeded')) {
-    return null;
-  }
-  
-  const lines = text.trim().split('\n');
-  for (const line of lines) {
-    const parts = line.split(/\s+/);
-    if (parts.length >= 2 && !parts[1].match(/^\d/)) {
-      const domain = parts[1].replace(/\.$/, '');
-      if (domain && domain !== ip) {
-        return domain;
-      }
-    }
-  }
-  return null;
+resolveBtn.onclick=async()=>{
+  const ips=parseIPs(input.value);
+  if(!ips.length){alertMsg('Paste IP addresses first');return}
+  tbody.innerHTML='';reset();stats.total=ips.length;updateStats();
+  alertMsg('Resolving '+ips.length+' IPs…');
+  const rows=ips.map(ip=>({ip,tr:addRow(ip)}));
+  let i=0;const conc=6;
+  async function worker(){while(i<rows.length){const c=rows[i++];await resolveIP(c.ip,c.tr)}}
+  await Promise.all(Array(Math.min(conc,rows.length)).fill(0).map(worker));
+  alertMsg('Done');
 }
 
-function parseGoogleDNS(text) {
-  try {
-    const data = JSON.parse(text);
-    if (data.Answer && data.Answer[0]) {
-      const domain = data.Answer[0].data.replace(/\.$/, '');
-      if (domain && !domain.includes('in-addr.arpa')) {
-        return domain;
-      }
-    }
-  } catch (e) {
-    return null;
-  }
-  return null;
+clearBtn.onclick=()=>{input.value='';tbody.innerHTML='';reset();alertMsg('Cleared')}
+copyDomains.onclick=()=>{
+  const doms=[...tbody.querySelectorAll('.pill')].map(p=>p.textContent);
+  if(!doms.length){alertMsg('No domains');return}
+  navigator.clipboard.writeText([...new Set(doms)].join('\n'));alertMsg('Domains copied');
 }
-
-function parseViewDNS(text) {
-  try {
-    const data = JSON.parse(text);
-    if (data.response && data.response.rdns) {
-      const domain = data.response.rdns;
-      if (domain && domain !== 'error') {
-        return domain;
-      }
-    }
-  } catch (e) {
-    return null;
-  }
-  return null;
-}
-
-// Main lookup function
-async function lookupIPs() {
-  const rawInput = ipInput.value.trim();
-  if (!rawInput) {
-    showToast('Please enter IP addresses', 'warning');
-    ipInput.focus();
-    return;
-  }
-
-  // Parse IPs
-  const ips = extractIPs(rawInput);
-  
-  if (ips.length === 0) {
-    showToast('No valid IP addresses found', 'error');
-    return;
-  }
-
-  if (ips.length > 100) {
-    if (!confirm(`You entered ${ips.length} IPs. Processing may take time. Continue?`)) {
-      return;
-    }
-  }
-
-  // Reset UI
-  domainsList.innerHTML = '';
-  statusList.innerHTML = '';
-  empty.style.display = 'none';
-  loading.style.display = 'block';
-  resultsSection.style.display = 'none';
-  summarySection.style.display = 'none';
-  progressContainer.style.display = 'block';
-  copyBtn.disabled = true;
-  lookupBtn.disabled = true;
-  debugBtn.disabled = true;
-
-  let results = [];
-  let statusUpdates = [];
-  const totalIPs = ips.length;
-  let processed = 0;
-  let successful = 0;
-  let noDNS = 0;
-  let failed = 0;
-
-  // Show initial progress
-  updateProgress(processed, totalIPs, 'Starting lookup...');
-
-  // Process IPs with concurrency control
-  const batchSize = 3; // Process 3 IPs in parallel
-  const startTime = Date.now();
-
-  for (let i = 0; i < ips.length; i += batchSize) {
-    const batch = ips.slice(i, i + batchSize);
-    const batchPromises = batch.map(async (ip, index) => {
-      updateProgress(processed, totalIPs, `Looking up ${ip}...`);
-      
-      try {
-        const result = await lookupSingleIP(ip);
-        processed++;
-        
-        if (result) {
-          results.push(result);
-          successful++;
-          addStatusUpdate(ip, 'success', `Found: ${result.domain} (${result.source})`);
-        } else {
-          noDNS++;
-          addStatusUpdate(ip, 'warning', 'No DNS record found');
-        }
-        
-        updateProgress(processed, totalIPs, `Processed ${processed}/${totalIPs} IPs`);
-        updateSummary(successful, noDNS, failed);
-        
-      } catch (error) {
-        processed++;
-        failed++;
-        addStatusUpdate(ip, 'error', `Failed: ${error.message}`);
-        updateProgress(processed, totalIPs, `Error with ${ip}`);
-        updateSummary(successful, noDNS, failed);
-      }
-    });
-    
-    await Promise.allSettled(batchPromises);
-  }
-
-  const endTime = Date.now();
-  const totalTime = ((endTime - startTime) / 1000).toFixed(2);
-
-  // Hide loading, show results
-  loading.style.display = 'none';
-  progressContainer.style.display = 'none';
-  lookupBtn.disabled = false;
-  debugBtn.disabled = false;
-  resultsSection.style.display = 'block';
-  summarySection.style.display = 'block';
-
-  // Process and display results
-  displayResults(results, ips.length, successful, noDNS, failed, totalTime);
-}
-
-// Update progress bar and status
-function updateProgress(current, total, message = '') {
-  const percentage = Math.round((current / total) * 100);
-  progressBar.style.width = `${percentage}%`;
-  statusText.textContent = `Processing: ${current}/${total} IPs (${percentage}%)`;
-  
-  if (message) {
-    statusDetails.textContent = message;
-  }
-}
-
-// Add status update
-function addStatusUpdate(ip, type, message) {
-  const statusItem = document.createElement('li');
-  statusItem.className = `status-item status-${type}`;
-  statusItem.innerHTML = `
-    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'times-circle'}"></i>
-    <div class="status-details">
-      <div class="status-ip">${ip}</div>
-      <div>${message}</div>
-    </div>
-  `;
-  
-  statusList.appendChild(statusItem);
-  statusList.scrollTop = statusList.scrollHeight;
-}
-
-// Update summary
-function updateSummary(success, noDNS, failed) {
-  summarySuccess.textContent = success;
-  summaryNoDNS.textContent = noDNS;
-  summaryFailed.textContent = failed;
-}
-
-// Display results with animations
-function displayResults(results, totalIPs, successful, noDNS, failed, totalTime) {
-  if (results.length === 0) {
-    empty.style.display = 'block';
-    showToast(`No domains found. ${noDNS} IPs had no DNS records.`, 'warning');
-    return;
-  }
-
-  // Remove duplicates while preserving order
-  const uniqueResults = [];
-  const seenDomains = new Set();
-  const domainToIPs = new Map();
-  
-  results.forEach(result => {
-    if (!seenDomains.has(result.domain)) {
-      seenDomains.add(result.domain);
-      uniqueResults.push(result);
-      domainToIPs.set(result.domain, [result.ip]);
-    } else {
-      // Track additional IPs for the same domain
-      const existing = uniqueResults.find(r => r.domain === result.domain);
-      if (existing && !domainToIPs.get(result.domain).includes(result.ip)) {
-        domainToIPs.get(result.domain).push(result.ip);
-      }
-    }
-  });
-
-  // Update counters
-  animateCounter(domainCount, uniqueResults.length);
-  animateCounter(ipProcessed, totalIPs);
-  animateCounter(uniqueCount, uniqueResults.length);
-  animateCounter(failedCount, failed);
-  
-  updateSummary(successful, noDNS, failed);
-
-  // Display domains with staggered animation
-  domainsList.innerHTML = '';
-  uniqueResults.forEach((result, index) => {
-    setTimeout(() => {
-      const ipsForDomain = domainToIPs.get(result.domain);
-      const isMultipleIPs = ipsForDomain && ipsForDomain.length > 1;
-      
-      const domainElement = document.createElement('div');
-      domainElement.className = `domain-item ${isMultipleIPs ? 'same-domain' : ''}`;
-      domainElement.style.animationDelay = `${index * 50}ms`;
-      
-      domainElement.innerHTML = `
-        <div class="domain-info">
-          <span class="ip-badge">${ipsForDomain.length > 1 ? `${ipsForDomain.length} IPs` : result.ip}</span>
-          <span class="domain-text" data-domain="${result.domain}">${result.domain}</span>
-        </div>
-        <div class="domain-status">
-          ${isMultipleIPs ? 
-            `<span class="status-warning"><i class="fas fa-layer-group"></i> ${ipsForDomain.length} IPs</span>` :
-            `<span class="status-success"><i class="fas fa-check-circle"></i> Found</span>`
-          }
-          <span class="status-details" style="font-size: 0.8rem; color: var(--text-secondary);">
-            (${result.source})
-          </span>
-        </div>
-      `;
-      
-      domainsList.appendChild(domainElement);
-      
-      // Add tooltip for multiple IPs
-      if (isMultipleIPs && ipsForDomain.length > 1) {
-        domainElement.title = `IPs: ${ipsForDomain.join(', ')}`;
-      }
-      
-    }, index * 50);
-  });
-
-  copyBtn.disabled = false;
-  
-  // Show comprehensive results message
-  let message = `Found ${uniqueResults.length} unique domains from ${successful} successful lookups`;
-  if (noDNS > 0) message += `, ${noDNS} had no DNS records`;
-  if (failed > 0) message += `, ${failed} failed`;
-  message += ` in ${totalTime}s`;
-  
-  showToast(message, uniqueResults.length > 0 ? 'success' : 'warning');
-}
-
-// Animate counter numbers
-function animateCounter(element, target) {
-  const duration = 800;
-  const start = parseInt(element.textContent) || 0;
-  const increment = (target - start) / (duration / 16);
-  
-  let current = start;
-  const timer = setInterval(() => {
-    current += increment;
-    if ((increment > 0 && current >= target) || (increment < 0 && current <= target)) {
-      current = target;
-      clearInterval(timer);
-    }
-    element.textContent = Math.floor(current);
-  }, 16);
-}
-
-// Copy domains to clipboard
-async function copyDomainsOnly() {
-  const domains = [...document.querySelectorAll('[data-domain]')]
-    .map(el => el.dataset.domain);
-
-  if (!domains.length) {
-    showToast('Nothing to copy', 'warning');
-    return;
-  }
-
-  try {
-    await navigator.clipboard.writeText(domains.join('\n'));
-    
-    // Visual feedback
-    copyBtn.innerHTML = '<i class="fas fa-check"></i><span>Copied!</span>';
-    copyBtn.style.background = 'linear-gradient(135deg, #059669, #047857)';
-    
-    showToast(`Copied ${domains.length} domains to clipboard!`);
-    
-    setTimeout(() => {
-      copyBtn.innerHTML = '<i class="fas fa-copy"></i><span>Copy Domains</span>';
-      copyBtn.style.background = '';
-    }, 2000);
-    
-  } catch (err) {
-    showToast('Failed to copy: ' + err.message, 'error');
-  }
-}
-
-// Debug mode - show raw results for each IP
-async function debugLookup() {
-  const rawInput = ipInput.value.trim();
-  if (!rawInput) {
-    showToast('Enter IPs to debug', 'warning');
-    return;
-  }
-
-  const ips = extractIPs(rawInput);
-  if (ips.length === 0) {
-    showToast('No valid IPs found', 'error');
-    return;
-  }
-
-  debugBtn.disabled = true;
-  debugBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Debugging...</span>';
-  
-  const results = [];
-  
-  for (const ip of ips) {
-    try {
-      const response = await fetch(`https://api.hackertarget.com/reversedns/?q=${ip}`);
-      const text = await response.text();
-      
-      results.push({
-        ip,
-        rawResponse: text,
-        hasError: text.includes('error') || text.includes('No DNS'),
-        hasDomain: !text.includes('No DNS') && text.trim().length > 0
-      });
-      
-    } catch (error) {
-      results.push({
-        ip,
-        rawResponse: `ERROR: ${error.message}`,
-        hasError: true,
-        hasDomain: false
-      });
-    }
-  }
-  
-  // Show debug results in console and alert
-  console.table(results);
-  
-  let debugMessage = `Debug Results for ${ips.length} IPs:\n\n`;
-  results.forEach((result, index) => {
-    debugMessage += `${index + 1}. ${result.ip}:\n`;
-    debugMessage += `   Response: ${result.rawResponse.trim() || '(empty)'}\n`;
-    debugMessage += `   Status: ${result.hasError ? '❌ Error/No DNS' : '✅ Success'}\n\n`;
-  });
-  
-  alert(debugMessage);
-  
-  debugBtn.disabled = false;
-  debugBtn.innerHTML = '<i class="fas fa-bug"></i><span>Debug Mode</span>';
-  showToast(`Debug complete. Check console for details.`, 'success');
-}
-
-// Initialize with sample data
-window.addEventListener('DOMContentLoaded', () => {
-  // Auto-focus input
-  ipInput.focus();
-  
-  // Load sample data if empty
-  if (!ipInput.value.trim()) {
-    ipInput.value = `50.2.108.202
-170.130.71.10
-170.130.71.11
-170.130.71.12
-170.130.71.13
-170.130.71.14`;
-    
-    // Trigger input event to update counters
-    ipInput.dispatchEvent(new Event('input'));
-  }
-  
-  // Add click animations
-  document.querySelectorAll('.btn').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-      if (this.disabled) return;
-      
-      const rect = this.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      
-      const ripple = document.createElement('span');
-      ripple.style.cssText = `
-        position: absolute;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.4);
-        transform: scale(0);
-        animation: ripple 0.6s linear;
-        width: 100px;
-        height: 100px;
-        top: ${y - 50}px;
-        left: ${x - 50}px;
-        pointer-events: none;
-      `;
-      
-      this.appendChild(ripple);
-      setTimeout(() => ripple.remove(), 600);
-    });
-  });
-  
-  // Add CSS for ripple animation
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes ripple {
-      to {
-        transform: scale(4);
-        opacity: 0;
-      }
-    }
-  `;
-  document.head.appendChild(style);
-});
 </script>
 </body>
 </html>
